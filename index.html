@@ -1,33 +1,230 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mini Arcade</title>
+  <title>Neon Arcade Tetris</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      text-align: center;
-      font-family: Arial;
+      margin: 0;
       background: black;
-      color: lime;
+      color: #00f0ff;
+      font-family: Arial, sans-serif;
+      text-align: center;
     }
+
+    h1 {
+      color: #ff00ff;
+      text-shadow: 0 0 10px #ff00ff;
+    }
+
     canvas {
-      background: #111;
-      margin-top: 20px;
+      background: #000;
+      box-shadow: 0 0 20px #00f0ff;
+      margin-top: 10px;
+    }
+
+    #score {
+      font-size: 20px;
+      margin: 10px;
+      color: #00f0ff;
+    }
+
+    .controls {
+      margin-top: 15px;
+    }
+
+    button {
+      font-size: 20px;
+      margin: 5px;
+      padding: 10px 20px;
+      background: black;
+      color: #ff00ff;
+      border: 2px solid #ff00ff;
+      border-radius: 8px;
+    }
+
+    button:active {
+      background: #ff00ff;
+      color: black;
     }
   </style>
 </head>
 <body>
-  <h1>Mini Arcade Game</h1>
-  <p>Click to increase score!</p>
-  <h2 id="score">Score: 0</h2>
-  <button onclick="addScore()">Click Me</button>
 
-  <script>
-    let score = 0;
+<h1>Neon Arcade Tetris</h1>
+<div id="score">Score: 0</div>
+<canvas id="game" width="300" height="600"></canvas>
 
-    function addScore() {
-      score++;
-      document.getElementById("score").innerText = "Score: " + score;
+<div class="controls">
+  <button onclick="move(-1)">⬅</button>
+  <button onclick="rotate()">⟳</button>
+  <button onclick="move(1)">➡</button>
+  <button onclick="drop()">⬇</button>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const ROWS = 20;
+const COLS = 10;
+const SIZE = 30;
+
+let score = 0;
+
+const colors = [
+  null,
+  "#00f0ff",
+  "#ff00ff",
+  "#00ff88",
+  "#ff8800",
+  "#ffff00",
+  "#ff4444",
+  "#8888ff"
+];
+
+const pieces = [
+  [],
+  [[1,1,1,1]],
+  [[2,2],[2,2]],
+  [[0,3,0],[3,3,3]],
+  [[4,0,0],[4,4,4]],
+  [[0,0,5],[5,5,5]],
+  [[6,6,0],[0,6,6]],
+  [[0,7,7],[7,7,0]]
+];
+
+let board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+
+let current = newPiece();
+
+function newPiece() {
+  const rand = Math.floor(Math.random() * (pieces.length - 1)) + 1;
+  return {
+    shape: pieces[rand],
+    color: rand,
+    x: 3,
+    y: 0
+  };
+}
+
+function drawSquare(x, y, color) {
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 15;
+  ctx.fillRect(x * SIZE, y * SIZE, SIZE, SIZE);
+  ctx.shadowBlur = 0;
+}
+
+function drawBoard() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (board[r][c]) {
+        drawSquare(c, r, colors[board[r][c]]);
+      }
     }
-  </script>
+  }
+}
+
+function drawPiece() {
+  current.shape.forEach((row, r) => {
+    row.forEach((value, c) => {
+      if (value) {
+        drawSquare(current.x + c, current.y + r, colors[current.color]);
+      }
+    });
+  });
+}
+
+function collision() {
+  for (let r = 0; r < current.shape.length; r++) {
+    for (let c = 0; c < current.shape[r].length; c++) {
+      if (current.shape[r][c]) {
+        let newX = current.x + c;
+        let newY = current.y + r;
+        if (
+          newX < 0 || newX >= COLS ||
+          newY >= ROWS ||
+          board[newY] && board[newY][newX]
+        ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+function merge() {
+  current.shape.forEach((row, r) => {
+    row.forEach((value, c) => {
+      if (value) {
+        board[current.y + r][current.x + c] = current.color;
+      }
+    });
+  });
+}
+
+function clearLines() {
+  for (let r = ROWS - 1; r >= 0; r--) {
+    if (board[r].every(cell => cell !== 0)) {
+      board.splice(r, 1);
+      board.unshift(Array(COLS).fill(0));
+      score += 10;
+      document.getElementById("score").innerText = "Score: " + score;
+      r++;
+    }
+  }
+}
+
+function rotate() {
+  let rotated = current.shape[0].map((_, i) =>
+    current.shape.map(row => row[i]).reverse()
+  );
+  let backup = current.shape;
+  current.shape = rotated;
+  if (collision()) current.shape = backup;
+}
+
+function move(dir) {
+  current.x += dir;
+  if (collision()) current.x -= dir;
+}
+
+function drop() {
+  current.y++;
+  if (collision()) {
+    current.y--;
+    merge();
+    clearLines();
+    current = newPiece();
+    if (collision()) {
+      alert("Game Over!");
+      board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+      score = 0;
+    }
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft") move(-1);
+  if (e.key === "ArrowRight") move(1);
+  if (e.key === "ArrowDown") drop();
+  if (e.key === "ArrowUp") rotate();
+  drawBoard();
+  drawPiece();
+});
+
+setInterval(() => {
+  drop();
+  drawBoard();
+  drawPiece();
+}, 700);
+
+drawBoard();
+drawPiece();
+</script>
+
 </body>
 </html>
