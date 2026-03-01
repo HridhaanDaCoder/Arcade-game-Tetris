@@ -114,7 +114,7 @@ button:hover {
   <button id="resetHighScoreBtn" class="small-btn">Reset High Score</button>
 
 </div>
-
+<audio id="bgMusic" src="retro.mp3" loop></audio>
 
 <!-- GAME SCREEN -->
 <div id="gameScreen" style="display:none;">
@@ -349,7 +349,16 @@ document.getElementById("resetHighScoreBtn").addEventListener("click", () => {
   highScore = 0;
   document.getElementById("highScoreDisplay").innerText = 0;
 });
+const bgMusic = document.getElementById("bgMusic");
 
+document.getElementById("playBtn").addEventListener("click", () => {
+  bgMusic.play();
+});
+
+document.getElementById("backBtn").addEventListener("click", () => {
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
+});
 // Update high score when game ends
 function updateHighScore() {
   if (score > highScore) {
