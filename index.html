@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mini Arcade</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial;
+      background: black;
+      color: lime;
+    }
+    canvas {
+      background: #111;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mini Arcade Game</h1>
+  <p>Click to increase score!</p>
+  <h2 id="score">Score: 0</h2>
+  <button onclick="addScore()">Click Me</button>
+
+  <script>
+    let score = 0;
+
+    function addScore() {
+      score++;
+      document.getElementById("score").innerText = "Score: " + score;
+    }
+  </script>
+</body>
+</html>
