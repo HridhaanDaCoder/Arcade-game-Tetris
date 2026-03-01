@@ -4,13 +4,13 @@
   <title>Neon Arcade Tetris</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      margin: 0;
-      background: black;
-      color: #00f0ff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
+    canvas {
+  background: black;
+  border: 4px solid #00ffff;
+  box-shadow: 0 0 20px #00ffff;
+  display: block;
+  margin: 20px auto;
+}
 
     h1 {
       color: #ff00ff;
@@ -112,7 +112,14 @@ function drawSquare(x, y, color) {
   ctx.fillStyle = color;
   ctx.shadowColor = color;
   ctx.shadowBlur = 15;
+
   ctx.fillRect(x * SIZE, y * SIZE, SIZE, SIZE);
+
+  // Neon grid line
+  ctx.strokeStyle = "rgba(0,255,255,0.4)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x * SIZE, y * SIZE, SIZE, SIZE);
+
   ctx.shadowBlur = 0;
 }
 
@@ -216,11 +223,26 @@ document.addEventListener("keydown", e => {
   drawPiece();
 });
 
-setInterval(() => {
-  drop();
-  drawBoard();
-  drawPiece();
-}, 700);
+  let dropCounter = 0;
+let dropInterval = 800; // speed in ms
+let lastTime = 0;
+
+function update(time = 0) {
+    const deltaTime = time - lastTime;
+    lastTime = time;
+
+    dropCounter += deltaTime;
+
+    if (dropCounter > dropInterval) {
+        playerDrop();
+        dropCounter = 0;
+    }
+
+    draw();
+    requestAnimationFrame(update);
+}
+
+requestAnimationFrame(update);
 
 drawBoard();
 drawPiece();
