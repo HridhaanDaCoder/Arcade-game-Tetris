@@ -47,23 +47,96 @@ canvas {
   font-size: 24px;
   margin-bottom: 20px;
 }
+  body {
+  margin: 0;
+  background: black;
+  color: #00f0ff;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+/* Animated Neon Title */
+.animated-title {
+  font-size: 60px;
+  color: #ff00ff;
+  text-shadow: 0 0 20px #ff00ff;
+  animation: glow 1s infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px #ff00ff;
+  }
+  to {
+    text-shadow: 0 0 40px #ff00ff, 0 0 60px #00f0ff;
+  }
+}
+
+button {
+  font-size: 24px;
+  padding: 15px 40px;
+  margin-top: 20px;
+  background: black;
+  color: #ff00ff;
+  border: 3px solid #ff00ff;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #ff00ff;
+  color: black;
+}
+
+.small-btn {
+  font-size: 14px;
+  padding: 8px 20px;
+  border: 2px solid #00f0ff;
+  color: #00f0ff;
+}
 </style>
 </head>
 
 <body>
 
-<h1>NEON ARCADE TETRIS</h1>
+<!-- HOME SCREEN -->
+<div id="homeScreen">
 
-<div class="game-container">
-  <canvas id="game" width="300" height="600"></canvas>
+  <h1 class="animated-title">TETRIS</h1>
 
-  <div class="side-panel">
-    <h2>Score</h2>
-    <p id="score">0</p>
+  <h2>High Score</h2>
+  <p id="highScoreDisplay">0</p>
 
-    <h2>Level</h2>
-    <p id="level">1</p>
+  <h3>Made by Hridhaan</h3>
+
+  <button id="playBtn">PLAY</button>
+  <br>
+  <button id="resetHighScoreBtn" class="small-btn">Reset High Score</button>
+
+</div>
+
+
+<!-- GAME SCREEN -->
+<div id="gameScreen" style="display:none;">
+
+  <h1>NEON ARCADE TETRIS</h1>
+
+  <div class="game-container">
+    <canvas id="game"></canvas>
+
+    <div class="side-panel">
+      <h2>Score</h2>
+      <p id="score">0</p>
+
+      <h2>Level</h2>
+      <p id="level">1</p>
+    </div>
   </div>
+
+  <div class="controls">
+    <button id="backBtn">Back</button>
+  </div>
+
 </div>
 
 <script>
@@ -208,7 +281,10 @@ function drop() {
     clearLines();
     current = newPiece();
     if (collision()) {
-      alert("Game Over!");
+      updateHighScore();
+alert("Game Over!");
+gameScreen.style.display = "none";
+homeScreen.style.display = "block";
       board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
       score = 0;
       document.getElementById("score").innerText = score;
@@ -244,6 +320,47 @@ function update(time = 0) {
 }
 
 update();
+  // ----- HOME SCREEN LOGIC -----
+
+let highScore = localStorage.getItem("tetrisHighScore") || 0;
+document.getElementById("highScoreDisplay").innerText = highScore;
+
+const homeScreen = document.getElementById("homeScreen");
+const gameScreen = document.getElementById("gameScreen");
+
+document.getElementById("playBtn").addEventListener("click", () => {
+  homeScreen.style.display = "none";
+  gameScreen.style.display = "block";
+  resetGame();
+});
+
+document.getElementById("backBtn").addEventListener("click", () => {
+  gameScreen.style.display = "none";
+  homeScreen.style.display = "block";
+});
+
+document.getElementById("resetHighScoreBtn").addEventListener("click", () => {
+  localStorage.setItem("tetrisHighScore", 0);
+  highScore = 0;
+  document.getElementById("highScoreDisplay").innerText = 0;
+});
+
+// Update high score when game ends
+function updateHighScore() {
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem("tetrisHighScore", highScore);
+    document.getElementById("highScoreDisplay").innerText = highScore;
+  }
+}
+
+// Reset game properly
+function resetGame() {
+  board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+  score = 0;
+  document.getElementById("score").innerText = "0";
+  current = newPiece();
+}
 </script>
 
 </body>
