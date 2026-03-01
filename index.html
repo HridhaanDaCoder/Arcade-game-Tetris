@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Neon Arcade Tetris</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    canvas {
+<title>Neon Arcade Tetris</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
   background: black;
-  border: 4px solid #00ffff;
-  box-shadow: 0 0 20px #00ffff;
-  display: block;
-  margin: 20px auto;
+  font-family: Arial, sans-serif;
+  text-align: center;
 }
 
-    h1 {
+h1 {
   color: #ff00ff;
-  text-shadow: 0 0 10px #ff00ff;
+  text-shadow: 0 0 15px #ff00ff;
   margin-top: 20px;
 }
 
@@ -22,9 +22,15 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  gap: 30px;
+  gap: 40px;
   margin-top: 20px;
   flex-wrap: wrap;
+}
+
+canvas {
+  background: black;
+  border: 4px solid #00ffff;
+  box-shadow: 0 0 30px #00ffff;
 }
 
 .side-panel {
@@ -38,48 +44,18 @@
 }
 
 .side-panel p {
-  font-size: 22px;
+  font-size: 24px;
   margin-bottom: 20px;
 }
-
-    canvas {
-      background: #000;
-      box-shadow: 0 0 20px #00f0ff;
-      margin-top: 10px;
-    }
-
-    #score {
-      font-size: 20px;
-      margin: 10px;
-      color: #00f0ff;
-    }
-
-    .controls {
-      margin-top: 15px;
-    }
-
-    button {
-      font-size: 20px;
-      margin: 5px;
-      padding: 10px 20px;
-      background: black;
-      color: #ff00ff;
-      border: 2px solid #ff00ff;
-      border-radius: 8px;
-    }
-
-    button:active {
-      background: #ff00ff;
-      color: black;
-    }
-  </style>
+</style>
 </head>
+
 <body>
 
 <h1>NEON ARCADE TETRIS</h1>
 
 <div class="game-container">
-  <canvas id="game"></canvas>
+  <canvas id="game" width="300" height="600"></canvas>
 
   <div class="side-panel">
     <h2>Score</h2>
@@ -123,7 +99,6 @@ const pieces = [
 ];
 
 let board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
-
 let current = newPiece();
 
 function newPiece() {
@@ -140,10 +115,8 @@ function drawSquare(x, y, color) {
   ctx.fillStyle = color;
   ctx.shadowColor = color;
   ctx.shadowBlur = 15;
-
   ctx.fillRect(x * SIZE, y * SIZE, SIZE, SIZE);
 
-  // Neon grid line
   ctx.strokeStyle = "rgba(0,255,255,0.4)";
   ctx.lineWidth = 2;
   ctx.strokeRect(x * SIZE, y * SIZE, SIZE, SIZE);
@@ -181,7 +154,7 @@ function collision() {
         if (
           newX < 0 || newX >= COLS ||
           newY >= ROWS ||
-          board[newY] && board[newY][newX]
+          (board[newY] && board[newY][newX])
         ) {
           return true;
         }
@@ -207,7 +180,7 @@ function clearLines() {
       board.splice(r, 1);
       board.unshift(Array(COLS).fill(0));
       score += 10;
-      document.getElementById("score").innerText = "Score: " + score;
+      document.getElementById("score").innerText = score;
       r++;
     }
   }
@@ -238,6 +211,7 @@ function drop() {
       alert("Game Over!");
       board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
       score = 0;
+      document.getElementById("score").innerText = score;
     }
   }
 }
@@ -247,11 +221,9 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") move(1);
   if (e.key === "ArrowDown") drop();
   if (e.key === "ArrowUp") rotate();
-  drawBoard();
-  drawPiece();
 });
 
-  let dropCounter = 0;
+let dropCounter = 0;
 let dropInterval = 800;
 let lastTime = 0;
 
