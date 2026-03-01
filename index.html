@@ -252,28 +252,26 @@ document.addEventListener("keydown", e => {
 });
 
   let dropCounter = 0;
-let dropInterval = 800; // speed in ms
+let dropInterval = 800;
 let lastTime = 0;
 
 function update(time = 0) {
-    const deltaTime = time - lastTime;
-    lastTime = time;
+  const deltaTime = time - lastTime;
+  lastTime = time;
 
-    dropCounter += deltaTime;
+  dropCounter += deltaTime;
 
-    if (dropCounter > dropInterval) {
-        playerDrop();
-        dropCounter = 0;
-    }
+  if (dropCounter > dropInterval) {
+    drop();
+    dropCounter = 0;
+  }
 
-    draw();
-    requestAnimationFrame(update);
+  drawBoard();
+  drawPiece();
+  requestAnimationFrame(update);
 }
 
-requestAnimationFrame(update);
-
-drawBoard();
-drawPiece();
+update();
 </script>
 
 </body>
